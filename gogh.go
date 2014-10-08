@@ -63,6 +63,8 @@ func main() {
 
 func getCommentsForPullRequest(client *github.Client, remote *Remote, pr github.PullRequest) {
 	comments, _, _ := client.PullRequests.ListComments(remote.User, remote.Repo, *pr.Number, nil)
+	diff := getDiffFromURL(*pr.URL)
+	diffMap := processDiffIntoDiffMap(diff)
 	basePath, _ := getTopLevelPath()
 	for _, comment := range comments {
 		p := basePath
@@ -70,8 +72,10 @@ func getCommentsForPullRequest(client *github.Client, remote *Remote, pr github.
 			p = path.Join(basePath, *comment.Path)
 		}
 		pos := 0
-		if comment.Position != nil {
-			pos = *comment.Position
+		if comment.Position != nil && comment.Path != nil {
+			diffLine := diffMap[*comment.Path][*comment.Position]
+			fmt.Println(diffLine.Line)
+			pos = diffLine.RightIndex
 		} else if !*outdated {
 			continue
 		}
