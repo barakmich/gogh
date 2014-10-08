@@ -36,7 +36,7 @@ func main() {
 
 	var remote *Remote
 	for _, r := range remotes {
-		if r.User == *upstream {
+		if r.LocalName == *upstream {
 			remote = r
 			break
 		}
