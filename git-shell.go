@@ -17,13 +17,28 @@ func getTopLevelPath() (string, error) {
 }
 
 func getSHA() ([]string, error) {
-	cmd := exec.Command("git", "log", "--pretty=%H", "HEAD", "-10")
+	cmd := exec.Command("git", "log", "--pretty=%H", "HEAD", "-20")
 	bytes, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
 	shas := strings.Split(strings.TrimSpace(string(bytes)), "\n")
 	return shas, nil
+}
+
+func getBranch() (string, error) {
+	cmd := exec.Command("git", "branch")
+	bytes, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	branches := strings.Split(strings.TrimSpace(string(bytes)), "\n")
+	for _, b := range branches {
+		if strings.HasPrefix(b, "* ") {
+			return b[2:], nil
+		}
+	}
+	return "", fmt.Errorf("Not on a branch")
 }
 
 type Remote struct {
